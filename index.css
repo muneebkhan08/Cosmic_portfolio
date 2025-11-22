@@ -2,6 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Performance optimizations for smooth animations */
+@layer utilities {
+  .will-change-transform {
+    will-change: transform;
+  }
+  
+  .will-change-transform-opacity {
+    will-change: transform, opacity;
+  }
+  
+  .gpu-accelerated {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+  }
+}
+
 @layer utilities {
   .text-glow {
     text-shadow: 0 0 10px rgba(6, 182, 212, 0.5), 0 0 20px rgba(6, 182, 212, 0.3);

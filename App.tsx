@@ -185,7 +185,7 @@ const NavPlanet = React.memo(({
   >
     <motion.div 
       // Reduced sizes slightly for better desktop fit (md:w-12 instead of w-14)
-      className="relative w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center z-10"
+      className="relative w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center z-10 will-change-transform gpu-accelerated"
       animate={{
         backgroundColor: active ? '#18181b' : '#09090b',
         borderColor: active ? color : '#27272a',
@@ -194,11 +194,15 @@ const NavPlanet = React.memo(({
           : '0 0 0px rgba(0,0,0,0)',
       }}
       whileHover={{ 
-        scale: 1.15,
+        scale: 1.1,
         boxShadow: `0 0 30px ${color}80, inset 0 0 20px ${color}40`,
         borderColor: color
       }}
-      whileTap={{ scale: 0.9 }}
+      whileTap={{ scale: 0.95 }}
+      transition={{
+        duration: 0.15,
+        ease: 'easeOut'
+      }}
       style={{
         borderWidth: '1px',
         borderStyle: 'solid'
@@ -206,11 +210,11 @@ const NavPlanet = React.memo(({
     >
       {/* Rotating Orbital Ring */}
       <motion.div
-        className="absolute inset-[-4px] md:inset-[-6px] rounded-full border border-dashed opacity-40"
+        className="absolute inset-[-4px] md:inset-[-6px] rounded-full border border-dashed opacity-40 will-change-transform"
         style={{ borderColor: color }}
         animate={{ rotate: 360 }}
         transition={{ 
-          duration: active ? 4 : 20, // Spin faster when active
+          duration: active ? 3 : 20, // Faster active spin
           repeat: Infinity, 
           ease: "linear" 
         }}
@@ -223,8 +227,9 @@ const NavPlanet = React.memo(({
       {active && (
          <motion.div 
             layoutId="activePlanetGlow"
-            className="absolute inset-0 rounded-full opacity-40 blur-sm z-0"
+            className="absolute inset-0 rounded-full opacity-40 blur-sm z-0 will-change-transform"
             style={{ backgroundColor: color }}
+            transition={{ duration: 0.15, ease: 'easeOut' }}
          />
       )}
     </motion.div>
@@ -255,17 +260,17 @@ const App: React.FC = () => {
       
       {/* Main Content Area */}
       <main className="flex-1 relative z-10 overflow-hidden flex flex-col perspective-1000">
-        <AnimatePresence mode="wait">
+        <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={section}
-            initial={{ opacity: 0, scale: 0.95, filter: 'blur(5px)' }}
-            animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
-            exit={{ opacity: 0, scale: 1.05, filter: 'blur(5px)' }}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
             transition={{ 
-              duration: 0.3, // Reduced from 0.5 for snappier feel
-              ease: [0.43, 0.13, 0.23, 0.96] // Cinematic easing
+              duration: 0.2, // Ultra-fast transitions
+              ease: [0.25, 0.1, 0.25, 1] // Optimized easing for speed
             }}
-            className="w-full h-full"
+            className="w-full h-full will-change-transform-opacity gpu-accelerated"
           >
             {renderSection()}
           </motion.div>
@@ -273,7 +278,7 @@ const App: React.FC = () => {
       </main>
 
       {/* Navigation Dock - Reduced height (h-24) for better content visibility */}
-      <nav className="relative z-20 h-16 md:h-24 flex items-center justify-center border-t border-zinc-800 bg-black/80 backdrop-blur-md shrink-0">
+      <nav className="relative z-20 h-16 md:h-24 flex items-center justify-center border-t border-zinc-800 bg-black/80 backdrop-blur-md shrink-0 will-change-transform gpu-accelerated">
         <div className="flex w-full max-w-md md:max-w-2xl justify-evenly md:space-x-16 px-2">
           <NavPlanet 
             icon={HomeIcon} 
