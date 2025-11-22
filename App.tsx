@@ -1,3 +1,4 @@
+
 /**
  * @license
  * SPDX-License-Identifier: Apache-2.0
@@ -173,7 +174,8 @@ const NavPlanet = ({
     className="group flex flex-col items-center justify-center space-y-1 md:space-y-2 focus:outline-none flex-1 md:flex-none relative"
   >
     <motion.div 
-      className="relative w-10 h-10 md:w-14 md:h-14 rounded-full flex items-center justify-center z-10"
+      // Reduced sizes slightly for better desktop fit (md:w-12 instead of w-14)
+      className="relative w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center z-10"
       animate={{
         backgroundColor: active ? '#18181b' : '#09090b',
         borderColor: active ? color : '#27272a',
@@ -260,8 +262,8 @@ const App: React.FC = () => {
         </AnimatePresence>
       </main>
 
-      {/* Navigation Dock */}
-      <nav className="relative z-20 h-20 md:h-32 flex items-center justify-center border-t border-zinc-800 bg-black/80 backdrop-blur-md shrink-0">
+      {/* Navigation Dock - Reduced height (h-24) for better content visibility */}
+      <nav className="relative z-20 h-16 md:h-24 flex items-center justify-center border-t border-zinc-800 bg-black/80 backdrop-blur-md shrink-0">
         <div className="flex w-full max-w-md md:max-w-2xl justify-evenly md:space-x-16 px-2">
           <NavPlanet 
             icon={HomeIcon} 
