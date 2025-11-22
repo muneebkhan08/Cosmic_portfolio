@@ -25,7 +25,7 @@ const SKILLS = {
   }
 };
 
-export const SkillsSection: React.FC = () => {
+export const SkillsSection: React.FC = React.memo(() => {
   return (
     <div className="h-full overflow-y-auto px-4 pt-8 pb-12 md:pt-0 md:pb-0 md:flex md:items-center md:justify-center">
       <div className="max-w-6xl mx-auto w-full">
@@ -69,4 +69,4 @@ export const SkillsSection: React.FC = () => {
       </div>
     </div>
   );
-};
+});

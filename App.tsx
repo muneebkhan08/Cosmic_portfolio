@@ -3,7 +3,7 @@
  * @license
  * SPDX-License-Identifier: Apache-2.0
 */
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HomeSection } from './components/Hero';
 import { SkillsSection } from './components/CreationHistory';
@@ -14,13 +14,13 @@ import { HomeIcon, WrenchScrewdriverIcon, RocketLaunchIcon, SignalIcon } from '@
 type Section = 'home' | 'skills' | 'projects' | 'contact';
 
 // --- Starfield Background Logic ---
-const StarfieldCanvas = () => {
+const StarfieldCanvas = React.memo(() => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d', { alpha: true, willReadFrequently: false });
     if (!ctx) return;
 
     let width = window.innerWidth;
@@ -43,8 +43,8 @@ const StarfieldCanvas = () => {
     };
     init();
 
-    // Dynamic star count based on screen area
-    const getStarCount = () => Math.floor((width * height) / 3000); 
+    // Dynamic star count based on screen area - REDUCED BY 50% for performance
+    const getStarCount = () => Math.floor((width * height) / 6000); 
     
     let stars: { 
         x: number; 
@@ -74,7 +74,13 @@ const StarfieldCanvas = () => {
 
     stars = createStars(getStarCount());
 
+    // Throttle mouse move for better performance
+    let lastMouseUpdate = 0;
     const handleMouseMove = (e: MouseEvent) => {
+      const now = Date.now();
+      if (now - lastMouseUpdate < 16) return; // ~60fps throttle
+      lastMouseUpdate = now;
+      
       mouseX = e.clientX;
       mouseY = e.clientY;
       
@@ -135,14 +141,18 @@ const StarfieldCanvas = () => {
       animationFrameId = requestAnimationFrame(animate);
     };
 
+    let resizeTimeout: NodeJS.Timeout;
     const handleResize = () => {
-      init();
-      // Re-initialize stars to cover new dimensions immediately
-      stars = createStars(getStarCount());
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        init();
+        // Re-initialize stars to cover new dimensions immediately
+        stars = createStars(getStarCount());
+      }, 150); // Debounce resize
     };
 
-    window.addEventListener('resize', handleResize);
-    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('resize', handleResize, { passive: true });
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
     animate();
 
     return () => {
@@ -153,10 +163,10 @@ const StarfieldCanvas = () => {
   }, []);
 
   return <canvas ref={canvasRef} className="fixed inset-0 z-0 pointer-events-none" />;
-};
+});
 
 // --- Navigation Planets ---
-const NavPlanet = ({ 
+const NavPlanet = React.memo(({ 
   icon: Icon, 
   label, 
   active, 
@@ -223,13 +233,13 @@ const NavPlanet = ({
       {label}
     </span>
   </button>
-);
+));
 
 const App: React.FC = () => {
   const [section, setSection] = useState<Section>('home');
   const [isChatOpen, setIsChatOpen] = useState(false);
 
-  const renderSection = () => {
+  const renderSection = useCallback(() => {
     switch (section) {
       case 'home': return <HomeSection onNavigate={setSection} />;
       case 'skills': return <SkillsSection />;
@@ -237,7 +247,7 @@ const App: React.FC = () => {
       case 'contact': return <ContactSection />;
       default: return <HomeSection onNavigate={setSection} />;
     }
-  };
+  }, [section]);
 
   return (
     <div className="relative w-full h-[100dvh] overflow-hidden flex flex-col">
@@ -248,11 +258,11 @@ const App: React.FC = () => {
         <AnimatePresence mode="wait">
           <motion.div
             key={section}
-            initial={{ opacity: 0, scale: 0.5, filter: 'blur(10px)' }}
+            initial={{ opacity: 0, scale: 0.95, filter: 'blur(5px)' }}
             animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
-            exit={{ opacity: 0, scale: 1.5, filter: 'blur(10px)' }}
+            exit={{ opacity: 0, scale: 1.05, filter: 'blur(5px)' }}
             transition={{ 
-              duration: 0.5, 
+              duration: 0.3, // Reduced from 0.5 for snappier feel
               ease: [0.43, 0.13, 0.23, 0.96] // Cinematic easing
             }}
             className="w-full h-full"

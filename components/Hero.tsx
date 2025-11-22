@@ -11,7 +11,7 @@ interface HomeSectionProps {
   onNavigate: (section: string) => void;
 }
 
-const QuantumOrbitCanvas = () => {
+const QuantumOrbitCanvas = React.memo(() => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     // Reduced desktop size to 400px to fit 100vh screens better
     const DESKTOP_SIZE = 400;
@@ -19,7 +19,7 @@ const QuantumOrbitCanvas = () => {
     useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
-        const ctx = canvas.getContext('2d');
+        const ctx = canvas.getContext('2d', { alpha: true, willReadFrequently: false });
         if (!ctx) return;
 
         let animationFrameId: number;
@@ -53,9 +53,9 @@ const QuantumOrbitCanvas = () => {
                 const py = radiusY * Math.sin(pAngle);
                 
                 ctx.beginPath();
-                ctx.arc(px, py, 3.5, 0, 2 * Math.PI); // Slightly smaller particle
+                ctx.arc(px, py, 3, 0, 2 * Math.PI); // Smaller particle for performance
                 ctx.fillStyle = '#fff';
-                ctx.shadowBlur = 10;
+                ctx.shadowBlur = 6; // Reduced glow
                 ctx.shadowColor = color;
                 ctx.fill();
                 ctx.shadowBlur = 0;
@@ -121,7 +121,7 @@ const QuantumOrbitCanvas = () => {
             className="w-[300px] h-[300px] md:w-[400px] md:h-[400px]"
         />
     );
-};
+});
 
 export const HomeSection: React.FC<HomeSectionProps> = ({ onNavigate }) => {
   return (

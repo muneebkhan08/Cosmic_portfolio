@@ -58,7 +58,7 @@ export const ProjectsSection: React.FC = () => {
               key={project.name}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
+              transition={{ delay: index * 0.05 }} // Reduced delay for faster loading
               className={`group relative bg-zinc-900/40 border border-zinc-800 overflow-hidden rounded-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl ${project.featured ? 'md:col-span-2 lg:col-span-2 border-cyan-900/30 bg-gradient-to-br from-zinc-900 to-zinc-900/50' : 'hover:border-zinc-600'}`}
             >
               {project.featured && (
@@ -95,4 +95,4 @@ export const ProjectsSection: React.FC = () => {
       </div>
     </div>
   );
-};
+});
