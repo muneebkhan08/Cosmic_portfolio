@@ -7,6 +7,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PaperAirplaneIcon, ChatBubbleLeftRightIcon, XMarkIcon, MapPinIcon, EnvelopeIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 import { askGalaxyAI } from '../services/gemini';
+import { submitContactForm } from '../services/contact';
 
 // --- Contact Form Component ---
 export const ContactSection: React.FC = () => {
@@ -15,37 +16,34 @@ export const ContactSection: React.FC = () => {
         email: '',
         message: ''
     });
-    const [status, setStatus] = useState<'idle' | 'transmitting' | 'transmitted'>('idle');
+    const [status, setStatus] = useState<'idle' | 'transmitting' | 'transmitted' | 'error'>('idle');
+    const [statusMessage, setStatusMessage] = useState<string>('');
 
-    const handleTransmit = (e: React.FormEvent) => {
+    const handleTransmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!formState.name || !formState.email || !formState.message) return;
 
-        // Immediate visual feedback
         setStatus('transmitting');
+        setStatusMessage('Routing your signal through the relay network...');
 
-        const subject = `[Cosmic Portfolio] Transmission from ${formState.name}`;
-        const body = `Source Identity: ${formState.name}\nReturn Signal: ${formState.email}\n\nTransmission Payload:\n${formState.message}`;
-        
-        const mailtoLink = `mailto:muneebkhanf23@nutech.edu.pk?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        try {
+            await submitContactForm(formState);
+            setStatus('transmitted');
+            setStatusMessage('Signal received! Expect a reply very soon.');
+            setFormState({ name: '', email: '', message: '' });
 
-        // Use a temporary anchor tag to trigger the mailto. 
-        // This is often more reliable than window.location.href in preventing page unloads or blocks.
-        const link = document.createElement('a');
-        link.href = mailtoLink;
-        link.target = '_blank'; // Optional: tries to keep the app open
-        link.rel = 'noopener noreferrer';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        
-        // Update UI to "Sent" state
-        setStatus('transmitted');
-        setFormState({ name: '', email: '', message: '' });
-        
-        // Reset button state after a few seconds
-        setTimeout(() => setStatus('idle'), 3000);
+            setTimeout(() => {
+                setStatus('idle');
+                setStatusMessage('');
+            }, 4000);
+        } catch (err) {
+            const message = err instanceof Error ? err.message : 'Transmission failed. Please try again.';
+            setStatus('error');
+            setStatusMessage(message);
+        }
     };
+
+    const isTransmitting = status === 'transmitting';
 
     return (
         <div className="h-full overflow-y-auto px-4 pb-4 pt-4 flex flex-col items-center justify-center">
@@ -87,7 +85,7 @@ export const ContactSection: React.FC = () => {
                                 onChange={(e) => setFormState({...formState, name: e.target.value})}
                                 className="w-full bg-zinc-950 border border-zinc-800 rounded-lg p-2 md:p-3 text-sm md:text-base text-zinc-200 focus:border-cyan-500 focus:outline-none transition-colors disabled:opacity-50" 
                                 placeholder="Name / Organization" 
-                                disabled={status !== 'idle'}
+                                disabled={isTransmitting}
                             />
                         </div>
                         <div className="space-y-1 md:space-y-2">
@@ -99,7 +97,7 @@ export const ContactSection: React.FC = () => {
                                 onChange={(e) => setFormState({...formState, email: e.target.value})}
                                 className="w-full bg-zinc-950 border border-zinc-800 rounded-lg p-2 md:p-3 text-sm md:text-base text-zinc-200 focus:border-cyan-500 focus:outline-none transition-colors disabled:opacity-50" 
                                 placeholder="email@sector.com" 
-                                disabled={status !== 'idle'}
+                                disabled={isTransmitting}
                             />
                         </div>
                         <div className="space-y-1 md:space-y-2">
@@ -111,22 +109,29 @@ export const ContactSection: React.FC = () => {
                                 onChange={(e) => setFormState({...formState, message: e.target.value})}
                                 className="w-full bg-zinc-950 border border-zinc-800 rounded-lg p-2 md:p-3 text-sm md:text-base text-zinc-200 focus:border-cyan-500 focus:outline-none transition-colors resize-none disabled:opacity-50" 
                                 placeholder="Message content..."
-                                disabled={status !== 'idle'}
+                                disabled={isTransmitting}
                             ></textarea>
                         </div>
                         <button 
                             type="submit"
-                            disabled={status !== 'idle'}
+                            disabled={isTransmitting}
                             className={`w-full py-2.5 md:py-3 font-bold rounded-lg transition-all duration-300 flex items-center justify-center space-x-2 text-sm md:text-base
                                 ${status === 'idle' ? 'bg-cyan-600 hover:bg-cyan-500 text-white' : ''}
                                 ${status === 'transmitting' ? 'bg-cyan-900 text-cyan-200 cursor-wait' : ''}
                                 ${status === 'transmitted' ? 'bg-green-600 text-white' : ''}
+                                ${status === 'error' ? 'bg-red-600 text-white' : ''}
                             `}
                         >
                             {status === 'idle' && <><PaperAirplaneIcon className="w-4 h-4 md:w-5 md:h-5" /><span>TRANSMIT</span></>}
                             {status === 'transmitting' && <><div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" /><span>ENCRYPTING...</span></>}
-                            {status === 'transmitted' && <><CheckCircleIcon className="w-4 h-4 md:w-5 md:h-5" /><span>SENT (CHECK MAIL APP)</span></>}
+                            {status === 'transmitted' && <><CheckCircleIcon className="w-4 h-4 md:w-5 md:h-5" /><span>SIGNAL RECEIVED</span></>}
+                            {status === 'error' && <><XMarkIcon className="w-4 h-4 md:w-5 md:h-5" /><span>RETRY</span></>}
                         </button>
+                        {statusMessage && (
+                            <p className={`text-xs md:text-sm font-mono ${status === 'error' ? 'text-red-400' : 'text-cyan-400'}`}>
+                                {statusMessage}
+                            </p>
+                        )}
                     </div>
                 </form>
             </div>
@@ -176,7 +181,7 @@ export const AIChatInterface: React.FC<{ isOpen: boolean; onClose: () => void }>
                             <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                             <span className="font-mono text-xs font-bold text-zinc-300">GALAXY AI :: ONLINE</span>
                         </div>
-                        <button onClick={onClose} className="text-zinc-500 hover:text-white">
+                        <button onClick={onClose} className="text-zinc-500 hover:text-white" aria-label="Close chat window">
                             <XMarkIcon className="w-5 h-5" />
                         </button>
                     </div>
@@ -216,6 +221,7 @@ export const AIChatInterface: React.FC<{ isOpen: boolean; onClose: () => void }>
                                 onClick={handleSend}
                                 disabled={loading}
                                 className="p-2 bg-zinc-800 hover:bg-zinc-700 rounded-md text-cyan-400 transition-colors"
+                                aria-label="Send chat message"
                             >
                                 <PaperAirplaneIcon className="w-4 h-4 md:w-5 md:h-5" />
                             </button>

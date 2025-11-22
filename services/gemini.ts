@@ -2,11 +2,22 @@
  * @license
  * SPDX-License-Identifier: Apache-2.0
 */
-import { GoogleGenAI } from "@google/genai";
-
 const GEMINI_MODEL = 'gemini-2.5-flash';
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+const isServerEnvironment = () => typeof window === 'undefined';
+
+const resolveGeminiApiKey = () => {
+  if (typeof process !== 'undefined' && process.env?.API_KEY) {
+    return process.env.API_KEY;
+  }
+
+  if (typeof import.meta !== 'undefined') {
+    const meta = import.meta as ImportMeta & { env?: Record<string, string | undefined> };
+    return meta.env?.VITE_GEMINI_API_KEY || '';
+  }
+
+  return '';
+};
 
 const PORTFOLIO_DATA = {
   name: "Muhammad Muneeb Khan",
@@ -82,19 +93,41 @@ ${JSON.stringify(PORTFOLIO_DATA)}
 
 export async function askGalaxyAI(prompt: string): Promise<string> {
   try {
-    const response = await ai.models.generateContent({
-      model: GEMINI_MODEL,
-      contents: prompt,
-      config: {
-        systemInstruction: SYSTEM_INSTRUCTION,
-        temperature: 0.85, // Higher temperature for more warmth and creativity
-      },
-    });
+    if (isServerEnvironment()) {
+      try {
+        const { GoogleGenAI } = await import('@google/genai');
+        const apiKey = resolveGeminiApiKey();
 
-    return response.text || "I'm having trouble sensing the connection. Could you repeat that?";
+        if (!apiKey) {
+          console.warn('Galaxy AI: Missing API key. Falling back to mock response.');
+        } else {
+          const ai = new GoogleGenAI({ apiKey });
+          const response = await ai.models.generateContent({
+            model: GEMINI_MODEL,
+            contents: prompt,
+            config: {
+              systemInstruction: SYSTEM_INSTRUCTION,
+              temperature: 0.85,
+            },
+          });
+
+          return response.text || "I'm having trouble sensing the connection. Could you repeat that?";
+        }
+      } catch (sdkError) {
+        console.warn('Galaxy AI: Server SDK unavailable, falling back to mock response.', sdkError);
+      }
+    }
+
+    // Fallback mock reply for client-side / dev environments where the
+    // official SDK isn't available. This prevents runtime failures and
+    // keeps the UI responsive.
+    return `Galaxy: (simulated) I read your message: "${prompt.slice(0, 120)}". How can I help further?`;
   } catch (error) {
-    console.error("Galaxy AI Error:", error);
-    return "My empathy circuits are recalibrating. One moment please.";
+    // Any unexpected error: log and return a friendly fallback string.
+    // Avoid throwing so the UI can mount successfully.
+    // eslint-disable-next-line no-console
+    console.error('Galaxy AI Error:', error);
+    return "Galaxy is recalibrating. Please try again shortly.";
   }
 }
 
