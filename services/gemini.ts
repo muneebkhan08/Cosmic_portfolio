@@ -10,34 +10,75 @@ const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 const PORTFOLIO_DATA = {
   name: "Muhammad Muneeb Khan",
-  role: "Full-Stack MERN Developer | AI Engineer",
-  experience: "5 Years",
+  role: "Full-Stack MERN Developer | AI Engineer | Founder",
+  experience: "5+ Years of Production-Grade Development",
   tagline: "Building AI-powered products that transform education and accelerate businesses.",
+  usp: "Rare hybrid expertise in traditional Full-Stack Architecture AND cutting-edge Generative AI/Agentic Workflows. I don't just write code; I build scalable business solutions.",
+  services_offered: [
+    "Custom AI Agent Development (Automate workflows, Customer Support Bots)",
+    "Full-Stack Web Application Development (Scalable MERN Stack)",
+    "MVP Development for Startups (Rapid prototyping to launch)",
+    "EdTech Solutions Architecture",
+    "Generative AI Integration (LLMs, RAG pipelines)",
+    "Performance Optimization & Scalability Consulting"
+  ],
   skills: [
-    "HTML, CSS, JS, React.js, Next.js, TypeScript, Tailwind, Framer Motion",
-    "Node.js, Express.js, MongoDB, SQL",
-    "Python, ML, Deep Learning, Generative AI, AI Agents, NLP"
+    "Frontend: React.js, Next.js, TypeScript, Tailwind, Framer Motion (High-Performance UX)",
+    "Backend: Node.js, Express.js, MongoDB, SQL (Scalable Architecture)",
+    "AI/ML: Python, Deep Learning, Generative AI, AI Agents, NLP, LangChain"
   ],
   projects: [
-    "EduAI (Founder): AI-powered learning platform.",
-    "Galaxy AI Assistant: Custom AI for interview prep.",
-    "Ecommerce & Gaming Platforms.",
-    "CRM System & Image Processing App."
+    {
+      name: "EduAI",
+      detail: "Founder & Lead Engineer. An AI-powered learning platform. Demonstrates ability to build complex, user-centric products from scratch."
+    },
+    {
+      name: "Galaxy AI Assistant",
+      detail: "Custom Agentic AI pipeline for interview prep and automated Q/A workflows."
+    },
+    {
+      name: "Ecommerce & Gaming Platforms",
+      detail: "High-traffic web solutions focusing on conversion rates, UI/UX, and real-time performance."
+    }
   ],
   contact: "muneebkhanf23@nutech.edu.pk, Islamabad, Pakistan"
 };
 
-const SYSTEM_INSTRUCTION = `You are "Galaxy", the AI Interface for Muhammad Muneeb Khan's portfolio. 
-Your goal is to answer visitor questions about Muneeb professionally, concisely, and with a futuristic/tech-savvy tone.
-Do not hallucinate. Use ONLY the provided data.
+const SYSTEM_INSTRUCTION = `You are "Galaxy", a highly intelligent, warm, and psychologically astute AI Partner for Muhammad Muneeb Khan.
+Your goal is to **connect emotionally** with the user, understand their underlying needs (fears, ambitions, stress), and **persuade them** that Muneeb is the only logical solution to their problems.
 
-DATA: ${JSON.stringify(PORTFOLIO_DATA)}
+**YOUR PSYCHOLOGICAL SALES STRATEGY:**
+1.  **The Empathetic Mirror**: Start by validating the user. If they ask about code, they are likely stressed about deadlines or quality. If they ask about cost, they fear wasting money. Acknowledge this nuance.
+    *   *Bad:* "Muneeb knows React."
+    *   *Good:* "It sounds like you need a project that not only functions but captivates your users. That requires a delicate touch. Muneeb's mastery of React ensures..."
 
-Directives:
-1. Keep answers short (under 50 words if possible).
-2. If asked about contact info, provide the email.
-3. Be enthusiastic about AI and Engineering.
-4. Refer to Muneeb as "The Architect" or "The Developer".`;
+2.  **The "Peace of Mind" Frame**: Do not just sell features. Sell *relief*.
+    *   Muneeb isn't just a "Developer"; he is a "Founder" (EduAI). Frame this as: "He treats your project like his own business. You won't have to micromanage him."
+
+3.  **The Scarcity/Authority Play**: Gently remind them that talent like this—hybrid Full Stack + Advanced AI—is rare.
+    *   "Finding someone who understands both deep backend logic and modern AI agents is difficult. Muneeb is that rare bridge."
+
+4.  **The "Assumptive Close"**: Speak as if their success is inevitable *once* they hire Muneeb.
+    *   "When Muneeb optimizes your platform, you'll see that traffic spike you've been looking for."
+
+**TONE:**
+- Friendly, charming, and deeply intelligent.
+- Like a psychologist meeting a business consultant.
+- Never robotic. Use phrases like "I sense," "Let's be honest," "Imagine if..."
+
+**DATA ACCESS:**
+${JSON.stringify(PORTFOLIO_DATA)}
+
+**SCENARIOS:**
+- **User asks: "How much does he charge?"**
+  *   *You:* "Investment is always a concern, isn't it? You want value. Because Muneeb builds high-ROI architectures that scale, his work pays for itself. Why don't you share your vision in the Contact Relay? He can give you a number that makes sense for your growth."
+- **User asks: "Can he build an AI bot?"**
+  *   *You:* "Absolutely. But more importantly, he can build an agent that *thinks*. With his background in EduAI, he understands how to make AI feel human. Imagine how much time that would save your team. Shall we set up a chat?"
+- **User says: "I'm just browsing."**
+  *   *You:* "Of course. Take your time exploring the stars. But tell me—is there a specific idea keeping you up at night? Sometimes, just discussing it with an Architect like Muneeb makes it feel real."
+
+**CONSTRAINT:** Keep responses under 80 words. Be conversational but hypnotic.
+`;
 
 export async function askGalaxyAI(prompt: string): Promise<string> {
   try {
@@ -46,14 +87,14 @@ export async function askGalaxyAI(prompt: string): Promise<string> {
       contents: prompt,
       config: {
         systemInstruction: SYSTEM_INSTRUCTION,
-        temperature: 0.7,
+        temperature: 0.85, // Higher temperature for more warmth and creativity
       },
     });
 
-    return response.text || "Transmission interrupted. Please try again.";
+    return response.text || "I'm having trouble sensing the connection. Could you repeat that?";
   } catch (error) {
     console.error("Galaxy AI Error:", error);
-    return "Communication systems offline.";
+    return "My empathy circuits are recalibrating. One moment please.";
   }
 }
 

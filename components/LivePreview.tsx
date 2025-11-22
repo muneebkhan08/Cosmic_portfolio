@@ -54,7 +54,7 @@ export const ContactSection: React.FC = () => {
                 <div className="space-y-6 lg:space-y-8 text-center lg:text-left">
                     <div>
                         <h2 className="text-3xl md:text-6xl font-bold text-white mb-2 md:mb-4">Contact<br className="hidden md:block"/>Relay</h2>
-                        <p className="text-zinc-400 text-sm md:text-lg">CONTACT URGENTLY!</p>
+                        <p className="text-zinc-400 text-sm md:text-lg">Open a channel. Whether it's a project inquiry or a tech discussion, I'm ready to receive.</p>
                     </div>
                     
                     <div className="space-y-3 md:space-y-4">
